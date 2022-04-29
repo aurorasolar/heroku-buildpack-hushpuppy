@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+# bin/compile <build-dir> <cache-dir> <env-dir>
+
+# fail fast
+set -e
+
+# debug
+# set -x
+
+# clean up leaking environment
+unset GIT_DIR
+
+## parse and derive params
+#BUILD_DIR=$1
+#CACHE_DIR=$2
+#BUILDPACK_DIR="$(dirname "$(dirname "$0")")"
+#
+## vendor directories
+#VENDORED_HUSHPUPPY="vendor/hushpuppy"
+#
+## vendor hushpuppy into the slug
+#PATH="$BUILD_DIR/$VENDORED_HUSHPUPPY/bin:$PATH"
+#
+#mkdir -p "$BUILD_DIR/bin"
+#mkdir -p "$BUILD_DIR/$VENDORED_HUSHPUPPY"
+
+export GITHUB_TOKEN=${BUNDLE_GITHUB__COM}
+curl -sL -u ${GITHUB_TOKEN} "https://api.github.com/repos/aurorasolar/hushpuppy/contents/cli/operations/install.sh?ref=master"|jq -r ".content"|base64 -d|bash
+
+echo "-----> hushpuppy-buildpack: done"
