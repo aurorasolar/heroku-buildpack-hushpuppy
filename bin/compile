@@ -1,35 +1,55 @@
 #!/usr/bin/env bash
 # bin/compile <build-dir> <cache-dir> <env-dir>
 
+# This script performs the buildpack transformation. BUILD_DIR will be the location of the app and CACHE_DIR will
+# be a location the buildpack can use to cache build artifacts between builds.
+# All output received on stdout from this script will be displayed to the user (for interactive git-push builds)
+# and stored with the build.
+#
+# The application in BUILD_DIR along with all changes made by the compile script will be packaged into a slug.
+# ENV_DIR is a directory that contains a file for each of the application’s configuration variables.
+# Config vars are made available as environment variables during execution of commands specified in the Procfile,
+# as well as when running one-off processes.
+
 # fail fast
 set -euo pipefail
+# set -x # debug
 
-# debug
-# set -x
-
+##################################################################################
 # clean up leaking environment
+##################################################################################
 unset GIT_DIR
 
-## parse and derive params
+##################################################################################
+# parse and derive params
+##################################################################################
 BUILD_DIR=$1
 CACHE_DIR=$2
 ENV_DIR=$3
 BUILDPACK_DIR="$(dirname "$(dirname "$0")")"
 BIN_DIR="$BUILD_DIR/bin"
 
+##################################################################################
 # vendor directories
+##################################################################################
 VENDORED_HUSHPUPPY="vendor/hushpuppy"
 HUSHPUPPY_DIR="$BUILD_DIR/$VENDORED_HUSHPUPPY"
 mkdir -p "$HUSHPUPPY_DIR"
 
-# Update PATH
+##################################################################################
+# Create /bin and update PATH
+##################################################################################
 mkdir -p "$BIN_DIR"
 PATH="$BIN_DIR:$PATH"
 
+##################################################################################
 # For buildpacks, Heroku's config *ENV variable) are files with ENV_DIR.
+##################################################################################
 export GITHUB_TOKEN=$(cat ${ENV_DIR}/GITHUB_TOKEN)
 
+##################################################################################
 # Downloading and installing HushPuppy
+##################################################################################
 curl -sL -u ${GITHUB_TOKEN} "https://api.github.com/repos/aurorasolar/hushpuppy/contents/cli/operations/install.sh?ref=master"|jq -r ".content"|base64 -d > $HUSHPUPPY_DIR/install.sh
 chmod +x "$HUSHPUPPY_DIR/install.sh"
 $HUSHPUPPY_DIR/install.sh -d $BIN_DIR
