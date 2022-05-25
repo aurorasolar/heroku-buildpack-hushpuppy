@@ -45,7 +45,14 @@ PATH="$BIN_DIR:$PATH"
 ##################################################################################
 # For buildpacks, Heroku's config *ENV variable) are files with ENV_DIR.
 ##################################################################################
-export GITHUB_TOKEN=$(cat ${ENV_DIR}/GITHUB_TOKEN)
+for v in GITHUB_TOKEN BUNDLE_GITHUB__COM BUNDLE_RUBYGEMS__PKG__GITHUB__COM
+do
+  if [ -f "${ENV_DIR}/${v}" ]
+  then
+    export GITHUB_TOKEN=$(cat ${ENV_DIR}/${v})
+    break
+  fi
+done
 
 ##################################################################################
 # Downloading and installing HushPuppy
