@@ -47,8 +47,7 @@ PATH="$BIN_DIR:$PATH"
 ##################################################################################
 for v in GITHUB_TOKEN BUNDLE_GITHUB__COM BUNDLE_RUBYGEMS__PKG__GITHUB__COM
 do
-  if [ -f "${ENV_DIR}/${v}" ]
-  then
+  if [ -f "${ENV_DIR}/${v}" ]; then
     export GITHUB_TOKEN=$(cat ${ENV_DIR}/${v})
     break
   fi
@@ -57,7 +56,8 @@ done
 ##################################################################################
 # Downloading and installing HushPuppy
 ##################################################################################
-curl -sL -u ${GITHUB_TOKEN} "https://api.github.com/repos/aurorasolar/hushpuppy/contents/cli/operations/install.sh?ref=master"|jq -r ".content"|base64 -d > $HUSHPUPPY_DIR/install.sh
+INSTALL_SCRIPT_URL="https://api.github.com/repos/aurorasolar/hushpuppy/contents/cli/operations/install.sh?ref=master"
+curl -sL -u ${GITHUB_TOKEN} ${INSTALL_SCRIPT_URL} | jq -r ".content"|base64 -d > $HUSHPUPPY_DIR/install.sh
 chmod +x "$HUSHPUPPY_DIR/install.sh"
 $HUSHPUPPY_DIR/install.sh -d $BIN_DIR
 
